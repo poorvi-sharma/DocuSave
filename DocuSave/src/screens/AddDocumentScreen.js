@@ -1,29 +1,35 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Button,
-  TextInput,
-} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
+import React, { useEffect, useState } from "react";
+import {
+  Button,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import uploadDocument from "../utils/api";
 
-const DocumentUploadScreen = () => {
+const AddDocumentScreen = () => {
   const [document, setDocument] = useState(null);
   const [documentName, setDocumentName] = useState("");
   const [isUploadEnabled, setIsUploadEnabled] = useState(false);
   const [documentType, setDocumentType] = useState("");
 
+  useEffect(() => {
+    setIsUploadEnabled(!!document && !!documentName && !!documentType);
+  }, [document, documentName, documentType]);
+
   const handleChooseDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync();
-      if (!result.cancelled) {
-        setDocument(result.uri);
-        setDocumentName(result.name);
-        setDocumentType(result.type); // Store the document type
+      console.log("DocumentPicker result:", result); // Log the entire result object
+      if (!result.cancelled && result.assets.length > 0) {
+        const asset = result.assets[0];
+        setDocument(asset.uri);
+        setDocumentName(asset.name);
+        setDocumentType(asset.mimeType); // Store the document type
         setIsUploadEnabled(true);
       }
     } catch (error) {
@@ -37,11 +43,11 @@ const DocumentUploadScreen = () => {
       console.warn("No document selected");
       return;
     }
-    const documentData = new FormData();
 
+    const documentData = new FormData();
     documentData.append("document", {
       uri: document,
-      type: documentType, // Use the document type from DocumentPicker result
+      type: documentType,
       name: documentName,
     });
 
@@ -51,14 +57,14 @@ const DocumentUploadScreen = () => {
       // Reset document state after successful upload
       setDocument(null);
       setDocumentName("");
-      setDocumentType(""); // Reset document type
+      setDocumentType("");
+      // Reset upload button state
       setIsUploadEnabled(false);
     } catch (error) {
       console.error("Error uploading document:", error);
       // Handle upload error, e.g., show an error message
     }
   };
-
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -133,4 +139,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DocumentUploadScreen;
+export default AddDocumentScreen;

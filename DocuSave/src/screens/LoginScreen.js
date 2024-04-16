@@ -27,7 +27,7 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.welcomeText}>Welcome Back!</Text>
+      <Text style={styles.welcomeText}>Welcome Back! Raawi</Text>
       <LoginForm onLogin={handleLogin} />
       <View style={styles.signupContainer}>
         <Text style={styles.signupText}>Don't have an account? </Text>
