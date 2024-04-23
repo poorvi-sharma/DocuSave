@@ -1,7 +1,7 @@
 // AuthLoadingScreen.js
 import React, { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 
 const AuthLoadingScreen = () => {
@@ -12,10 +12,10 @@ const AuthLoadingScreen = () => {
   }, []);
 
   const checkAuthentication = async () => {
-    // const token = await AsyncStorage.getItem("token");
-    const token = true;
-    // You may need to implement additional logic to validate the token
-    if (token == true) {
+    let token = await AsyncStorage.getItem("token");
+    console.log("token", token);
+    // const token = false;
+    if (token == "true") {
       navigation.replace("Home");
     } else {
       navigation.replace("Login");

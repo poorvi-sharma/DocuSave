@@ -11,12 +11,15 @@ import { getDocumentList } from "../utils/api"; // Import your API function
 import { MaterialIcons } from "@expo/vector-icons";
 import SearchDocument from "../components/SearchDocument";
 import Navbar from "../components/Navbar";
+import HomeHeadline from "../components/HomeHeadline";
+import PdfReader from "../components/PdfReader";
 
 const HomeScreen = ({ navigation }) => {
   const [isArrayEmpty, setIsArrayEmpty] = useState(false);
   const [documentList, setDocumentList] = useState([]);
   const [filteredDocumentList, setFilteredDocumentList] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState(null);
 
   // Fetch document list from the server when the component mounts
   useEffect(() => {
@@ -32,15 +35,10 @@ const HomeScreen = ({ navigation }) => {
   const handleToggleSearch = () => {
     setIsSearchOpen(!isSearchOpen);
   };
-  // Function to handle searching documents
-  // const handleSearch = async (query) => {
-  //   try {
-  //     const searchResults = await searchDocuments(query);
-  //     setDocumentList(searchResults);
-  //   } catch (error) {
-  //     console.error("Error searching documents:", error);
-  //   }
-  // };
+  const handleDocumentSelection = (document) => {
+    setSelectedDocument(document);
+  };
+
   const handleSearch = (query) => {
     const initialDocumentList = getDocumentList().data.documents;
     if (!query) {
@@ -81,22 +79,27 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.containerHome}>
       <Navbar navigation={navigation} />
-      <Text style={styles.title}>Uploaded Documents</Text>
-
+      <HomeHeadline />
       {/* Conditional rendering for search bar */}
       {isSearchOpen && <SearchDocument onSearch={handleSearch} />}
       {isArrayEmpty ? <Text>Oops! no documents found</Text> : <Text></Text>}
-      <FlatList
-        data={filteredDocumentList}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.documentItem}>
-            <Text style={styles.documentName}>{item.name}</Text>
-            <Text style={styles.documentType}>{item.type}</Text>
-            {/* Add more details as needed */}
-          </View>
-        )}
-      />
+      {selectedDocument ? (
+        <PdfReader uri={selectedDocument.uri} />
+      ) : (
+        <FlatList
+          data={filteredDocumentList}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handleDocumentSelection(item)}>
+              <View style={styles.documentItem}>
+                <Text style={styles.documentName}>{item.name}</Text>
+                <Text style={styles.documentType}>{item.type}</Text>
+                {/* Add more details as needed */}
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      )}
 
       <View style={styles.iconContainer}>
         <TouchableOpacity
@@ -122,13 +125,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF8E1", // Beige background color
     padding: 20,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    color: "#795548", // Brown text color
-    marginTop: 30,
-  },
+
   documentItem: {
     marginBottom: 10,
     padding: 10,
@@ -165,3 +162,13 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
+
+// Function to handle searching documents
+// const handleSearch = async (query) => {
+//   try {
+//     const searchResults = await searchDocuments(query);
+//     setDocumentList(searchResults);
+//   } catch (error) {
+//     console.error("Error searching documents:", error);
+//   }
+// };

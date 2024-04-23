@@ -1,18 +1,21 @@
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const BASE_URL = "http://192.168.29.203:8080"; // backend URL
 
 const login = async (email, password) => {
   try {
-    const response = await axios.post("your-backend-url/login", {
+    const response = await axios.post(`${BASE_URL}/login`, {
       email,
       password,
     });
-    const token = response.data.token; // Assuming the server returns a token upon successful login
-    await AsyncStorage.setItem("token", token); // Store the token using AsyncStorage
+    console.log("response of login: ", response.data);
+
+    const user = response.data; // Assuming the server returns a user upon successful login
+    await AsyncStorage.setItem("user", JSON.stringify(user)); // Store the token using AsyncStorage
     // Optionally, you can also store other user information such as name or email
-    await AsyncStorage.setItem("user", JSON.stringify(response.data.user));
-    return token;
+    // await AsyncStorage.setItem("user", JSON.stringify(response.data));
+    return true;
   } catch (error) {
     console.error("Login failed:", error);
     throw error;
@@ -31,13 +34,48 @@ const signUp = async (user) => {
 };
 
 const uploadDocument = async (documentData) => {
+  const userId = "1";
+  console.log("in uploadDocument");
+  documentData.append("userId", userId);
+  console.log(documentData);
   try {
-    const response = await axios.post(`${BASE_URL}/upload`, documentData);
+    // const documentData = new FormData();
+    // documentData.append("document", document);
+    // documentData.append("docType", docType);
+    // documentData.append("docName", docName);
+
+    const response = await axios.post(`${BASE_URL}/upload`, documentData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    console.log("Document uploaded");
+    console.log("Upload response: ", response.data);
     return response.data;
   } catch (error) {
     throw error;
   }
 };
+
+// const uploadDocument = async (documentData) => {
+//   console.log("in ud");
+//   try {
+//     // Append userId to the documentData FormData
+//     // documentData.append("document", { userId: 1 });
+//     console.log(documentData);
+//     const response = await axios.post(`${BASE_URL}/upload`, documentData, {
+//       headers: {
+//         "Content-Type": "multipart/form-data", // Set the content type explicitly for FormData
+//       },
+//     });
+//     console.log("doc uploaded");
+//     console.log("upload res: ", response.data);
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 const getDocumentList = () => {
   return {

@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
+// import * as FileSystem from "expo-file-system";
 import React, { useEffect, useState } from "react";
 import {
   Button,
@@ -9,17 +10,22 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import uploadDocument from "../utils/api";
+import { uploadDocument } from "../utils/api";
 
 const AddDocumentScreen = () => {
   const [document, setDocument] = useState(null);
   const [documentName, setDocumentName] = useState("");
   const [isUploadEnabled, setIsUploadEnabled] = useState(false);
-  const [documentType, setDocumentType] = useState("");
+  // const [documentType, setDocumentType] = useState("");
+  // const [uri, setUri] = useState("");
+
+  // useEffect(() => {
+  //   setIsUploadEnabled(!!document && !!documentName && !!documentType);
+  // }, [document, documentName, documentType]);
 
   useEffect(() => {
-    setIsUploadEnabled(!!document && !!documentName && !!documentType);
-  }, [document, documentName, documentType]);
+    setIsUploadEnabled(!!document && !!documentName);
+  }, [document, documentName]);
 
   const handleChooseDocument = async () => {
     try {
@@ -27,37 +33,45 @@ const AddDocumentScreen = () => {
       console.log("DocumentPicker result:", result); // Log the entire result object
       if (!result.cancelled && result.assets.length > 0) {
         const asset = result.assets[0];
-        setDocument(asset.uri);
-        setDocumentName(asset.name);
-        setDocumentType(asset.mimeType); // Store the document type
+        setDocument(asset);
         setIsUploadEnabled(true);
       }
+
+      // if (!result.cancelled && result.assets.length > 0) {
+      //   const asset = result.assets[0];
+      //   setDocument(asset.uri);
+      //   setDocumentName(asset.name);
+      //   setDocumentType(asset.mimeType); // Store the document type
+      //   setIsUploadEnabled(true);
+      // }
     } catch (error) {
       console.error("Error picking document:", error);
     }
   };
-
   const handleUpload = async () => {
     console.log(documentName);
     if (!document) {
       console.warn("No document selected");
       return;
     }
-
-    const documentData = new FormData();
-    documentData.append("document", {
-      uri: document,
-      type: documentType,
+    console.log("doc: ", document);
+    const formData = new FormData();
+    formData.append("file", {
+      uri: document.uri,
       name: documentName,
+      type: document.type, // Use 'type' instead of 'mimeType'
     });
 
+    console.log("formData:", formData);
+
     try {
-      const response = await uploadDocument(documentData);
+      console.log("called");
+      const response = await uploadDocument(formData); // Replace `1` with the actual userId
       console.log("Document uploaded successfully:", response);
       // Reset document state after successful upload
       setDocument(null);
       setDocumentName("");
-      setDocumentType("");
+      // setDocumentType("");
       // Reset upload button state
       setIsUploadEnabled(false);
     } catch (error) {
@@ -65,6 +79,36 @@ const AddDocumentScreen = () => {
       // Handle upload error, e.g., show an error message
     }
   };
+
+  // const handleUpload = async () => {
+  //   console.log(documentName);
+  //   if (!document) {
+  //     console.warn("No document selected");
+  //     return;
+  //   }
+
+  //   const documentData = new FormData();
+  //   documentData.append("document", {
+  //     doc: document,
+  //     docType: documentType,
+  //     docName: documentName,
+  //   });
+
+  //   try {
+  //     console.log("called");
+  //     const response = await uploadDocument(documentData);
+  //     console.log("Document uploaded successfully:", response);
+  //     // Reset document state after successful upload
+  //     setDocument(null);
+  //     setDocumentName("");
+  //     setDocumentType("");
+  //     // Reset upload button state
+  //     setIsUploadEnabled(false);
+  //   } catch (error) {
+  //     console.error("Error uploading document:", error);
+  //     // Handle upload error, e.g., show an error message
+  //   }
+  // };
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -140,3 +184,25 @@ const styles = StyleSheet.create({
 });
 
 export default AddDocumentScreen;
+
+// *******to store file as blob on database :
+// const result = await DocumentPicker.getDocumentAsync();
+// console.log("DocumentPicker result:", result); // Log the entire result object
+// if (!result.cancelled && result.assets.length > 0) {
+//   const asset = result.assets[0];
+//   const fileInfo = await FileSystem.getInfoAsync(asset.uri); // Get file info
+//   const fileContent = await FileSystem.readAsStringAsync(asset.uri, {
+//     encoding: FileSystem.EncodingType.Base64, // Read file content as Base64
+//   });
+//   const fileBlob = new Blob([fileContent], { type: fileInfo.mimeType });
+// setDocument({
+//   uri: asset.uri,
+//   name: asset.name,
+//   type: asset.mimeType,
+//   blob: fileBlob,
+// });
+
+// setDocument(fileBlob);
+// setDocumentName(asset.name);
+// setDocumentType(asset.mimeType); // Store the document type
+// setIsUploadEnabled(true);

@@ -3,15 +3,18 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import LoginForm from "../components/LoginForm";
 import { login } from "../utils/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const LoginScreen = ({ navigation }) => {
   const handleLogin = async (email, password) => {
     console.log(email, password);
-    navigation.replace("AuthLoading");
+
     try {
       // Call the login function from utils/api
       const token = await login(email, password);
-      // If login is successful, navigate to the Home screen
+      await AsyncStorage.setItem("token", JSON.stringify(token));
+      navigation.replace("AuthLoading");
+      // navigateToSignUp(); /** */
     } catch (error) {
       console.error("Login failed:", error);
       Alert.alert(
