@@ -16,16 +16,12 @@ const AddDocumentScreen = () => {
   const [document, setDocument] = useState(null);
   const [documentName, setDocumentName] = useState("");
   const [isUploadEnabled, setIsUploadEnabled] = useState(false);
-  // const [documentType, setDocumentType] = useState("");
-  // const [uri, setUri] = useState("");
-
-  // useEffect(() => {
-  //   setIsUploadEnabled(!!document && !!documentName && !!documentType);
-  // }, [document, documentName, documentType]);
+  const [documentType, setDocumentType] = useState("");
+  const [documentUri, setDocumentUri] = useState("");
 
   useEffect(() => {
-    setIsUploadEnabled(!!document && !!documentName);
-  }, [document, documentName]);
+    setIsUploadEnabled(!!document && !!documentName && !!documentType && !!documentUri);
+  }, [document, documentName, documentType, documentUri]);
 
   const handleChooseDocument = async () => {
     try {
@@ -33,7 +29,10 @@ const AddDocumentScreen = () => {
       console.log("DocumentPicker result:", result); // Log the entire result object
       if (!result.cancelled && result.assets.length > 0) {
         const asset = result.assets[0];
+        setDocumentName(asset.name);
         setDocument(asset);
+        setDocumentType(asset.mimeType);
+        setDocumentUri(asset.uri);
         setIsUploadEnabled(true);
       }
 
@@ -55,23 +54,24 @@ const AddDocumentScreen = () => {
       return;
     }
     console.log("doc: ", document);
-    const formData = new FormData();
-    formData.append("file", {
-      uri: document.uri,
-      name: documentName,
-      type: document.type, // Use 'type' instead of 'mimeType'
-    });
+    // const formData = new FormData();
+    // formData.append("file", {
+    //   uri: document.uri,
+    //   name: documentName,
+    //   type: document.type, // Use 'type' instead of 'mimeType'
+    // });
 
-    console.log("formData:", formData);
+    // console.log("formData:", formData);
 
     try {
       console.log("called");
-      const response = await uploadDocument(formData); // Replace `1` with the actual userId
+      console.log(documentType);
+      const response = await uploadDocument(documentName, documentType, documentUri); // Replace `1` with the actual userId
       console.log("Document uploaded successfully:", response);
       // Reset document state after successful upload
       setDocument(null);
       setDocumentName("");
-      // setDocumentType("");
+      setDocumentType("");
       // Reset upload button state
       setIsUploadEnabled(false);
     } catch (error) {

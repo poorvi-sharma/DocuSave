@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "react-native";
-import PDFReader from "react-native-pdf";
+// import PDFReader from "react-native-pdf";
 
 const MyPDFViewer = ({ pdfUri }) => {
   return (

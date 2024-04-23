@@ -1,7 +1,7 @@
-import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
-const BASE_URL = "http://192.168.29.203:8080"; // backend URL
+const BASE_URL = "http://192.168.29.43:8080"; // backend URL
 
 const login = async (email, password) => {
   try {
@@ -33,22 +33,25 @@ const signUp = async (user) => {
   }
 };
 
-const uploadDocument = async (documentData) => {
-  const userId = "1";
+const uploadDocument = async (docName, docType, docUri) => {
+  const userId = "4";
   console.log("in uploadDocument");
-  documentData.append("userId", userId);
-  console.log(documentData);
+  // documentData.append("userId", userId);
+  // console.log(documentData);
+  const data = {
+    docName: docName,
+    docType: docType,
+    docUri: docUri,
+    userId: userId
+  };
   try {
     // const documentData = new FormData();
-    // documentData.append("document", document);
-    // documentData.append("docType", docType);
-    // documentData.append("docName", docName);
+    // // documentData.append("document", document);
+    // documentData.append("name", name);
+    // documentData.append("type", type);
+    // documentData.append("userId", userId);
 
-    const response = await axios.post(`${BASE_URL}/upload`, documentData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await axios.post(`${BASE_URL}/upload`, data);
 
     console.log("Document uploaded");
     console.log("Upload response: ", response.data);
@@ -58,54 +61,49 @@ const uploadDocument = async (documentData) => {
   }
 };
 
-// const uploadDocument = async (documentData) => {
-//   console.log("in ud");
-//   try {
-//     // Append userId to the documentData FormData
-//     // documentData.append("document", { userId: 1 });
-//     console.log(documentData);
-//     const response = await axios.post(`${BASE_URL}/upload`, documentData, {
-//       headers: {
-//         "Content-Type": "multipart/form-data", // Set the content type explicitly for FormData
-//       },
-//     });
-//     console.log("doc uploaded");
-//     console.log("upload res: ", response.data);
-//     return response.data;
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
-const getDocumentList = () => {
-  return {
-    data: {
-      documents: [
-        { id: 1, name: "Document 41", type: "PDF" },
-        { id: 2, name: "Document 2", type: "Word" },
-        { id: 3, name: "Document 3", type: "Excel" },
-        { id: 4, name: "Document 1", type: "PDF" },
-        { id: 5, name: "Document 2", type: "Word" },
-        { id: 6, name: "Document 3", type: "Excel" },
-        { id: 7, name: "Document 1", type: "PDF" },
-        { id: 8, name: "Document 2", type: "Word" },
-        { id: 9, name: "Document 3", type: "Excel" },
-        { id: 10, name: "Document 1", type: "PDF" },
-        { id: 11, name: "Document 2", type: "Word" },
-        { id: 12, name: "Document 3", type: "Excel" },
-        { id: 13, name: "Document 1", type: "PDF" },
-        { id: 14, name: "Document 2", type: "Word" },
-        { id: 15, name: "Document 3", type: "Excel" },
-        { id: 16, name: "Document 1", type: "PDF" },
-        { id: 17, name: "Document 2", type: "Word" },
-        { id: 18, name: "Document 3", type: "Excel" },
-        { id: 19, name: "Document 1", type: "PDF" },
-        { id: 20, name: "Document 2", type: "Word" },
-        { id: 21, name: "Document 3", type: "Excel" },
-        // Add more sample documents as needed
-      ],
-    },
-  };
+const getDocumentList = async () => {
+  try {
+    // Make GET request to fetch document list
+    const response = await axios.get(`${BASE_URL}/documents/4`);
+    
+    // Return the response data
+    // console.log("This is reponse:", response);
+    console.log(response.data[0]);
+    return response.data[0];
+  } catch (error) {
+    // Handle error if request fails
+    console.error('Error fetching document list:', error);
+    throw error; // Re-throw the error to handle it in the calling code
+  }
+  // return {
+  //   data: {
+  //     documents: [
+  //       { id: 1, name: "Document 41", type: "PDF" },
+  //       { id: 2, name: "Document 2", type: "Word" },
+  //       { id: 3, name: "Document 3", type: "Excel" },
+  //       { id: 4, name: "Document 1", type: "PDF" },
+  //       { id: 5, name: "Document 2", type: "Word" },
+  //       { id: 6, name: "Document 3", type: "Excel" },
+  //       { id: 7, name: "Document 1", type: "PDF" },
+  //       { id: 8, name: "Document 2", type: "Word" },
+  //       { id: 9, name: "Document 3", type: "Excel" },
+  //       { id: 10, name: "Document 1", type: "PDF" },
+  //       { id: 11, name: "Document 2", type: "Word" },
+  //       { id: 12, name: "Document 3", type: "Excel" },
+  //       { id: 13, name: "Document 1", type: "PDF" },
+  //       { id: 14, name: "Document 2", type: "Word" },
+  //       { id: 15, name: "Document 3", type: "Excel" },
+  //       { id: 16, name: "Document 1", type: "PDF" },
+  //       { id: 17, name: "Document 2", type: "Word" },
+  //       { id: 18, name: "Document 3", type: "Excel" },
+  //       { id: 19, name: "Document 1", type: "PDF" },
+  //       { id: 20, name: "Document 2", type: "Word" },
+  //       { id: 21, name: "Document 3", type: "Excel" },
+  //       // Add more sample documents as needed
+  //     ],
+  //   },
+  // };
 };
 
-export { login, signUp, uploadDocument, getDocumentList };
+export { getDocumentList, login, signUp, uploadDocument };
+

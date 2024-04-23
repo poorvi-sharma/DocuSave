@@ -1,18 +1,18 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {
+  BackHandler,
   FlatList,
   StyleSheet,
   Text,
-  View,
   TouchableOpacity,
-  BackHandler,
+  View,
 } from "react-native";
-import { getDocumentList } from "../utils/api"; // Import your API function
-import { MaterialIcons } from "@expo/vector-icons";
-import SearchDocument from "../components/SearchDocument";
-import Navbar from "../components/Navbar";
 import HomeHeadline from "../components/HomeHeadline";
+import Navbar from "../components/Navbar";
 import PdfReader from "../components/PdfReader";
+import SearchDocument from "../components/SearchDocument";
+import { getDocumentList } from "../utils/api"; // Import your API function
 
 const HomeScreen = ({ navigation }) => {
   const [isArrayEmpty, setIsArrayEmpty] = useState(false);
@@ -61,8 +61,8 @@ const HomeScreen = ({ navigation }) => {
   const fetchDocumentList = async () => {
     try {
       const response = await getDocumentList(); // Make API call to fetch document list
-      setDocumentList(response.data.documents); // Store the document list in state
-      setFilteredDocumentList(response.data.documents);
+      setDocumentList(response); // Store the document list in state
+      setFilteredDocumentList(response);
     } catch (error) {
       console.error("Error fetching document list:", error);
       // Handle error, e.g., show an error message
@@ -88,12 +88,12 @@ const HomeScreen = ({ navigation }) => {
       ) : (
         <FlatList
           data={filteredDocumentList}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.docId.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => handleDocumentSelection(item)}>
               <View style={styles.documentItem}>
-                <Text style={styles.documentName}>{item.name}</Text>
-                <Text style={styles.documentType}>{item.type}</Text>
+                <Text style={styles.documentName}>{item.docName}</Text>
+                <Text style={styles.documentType}>{item.docType}</Text>
                 {/* Add more details as needed */}
               </View>
             </TouchableOpacity>
