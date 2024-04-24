@@ -1,18 +1,17 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import { useFocusEffect } from '@react-navigation/native';
 import React, { useEffect, useState } from "react";
 import {
-  BackHandler,
-  FlatList,
-  StyleSheet,
+  Alert, BackHandler,
+  FlatList, Modal, StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import HomeHeadline from "../components/HomeHeadline";
 import Navbar from "../components/Navbar";
-import PdfReader from "../components/PdfReader";
 import SearchDocument from "../components/SearchDocument";
-import { getDocumentList } from "../utils/api"; // Import your API function
+import { deleteDocument, getDocumentList } from "../utils/api"; // Import your API function
 
 const HomeScreen = ({ navigation }) => {
   const [isArrayEmpty, setIsArrayEmpty] = useState(false);
@@ -20,6 +19,7 @@ const HomeScreen = ({ navigation }) => {
   const [filteredDocumentList, setFilteredDocumentList] = useState([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   // Fetch document list from the server when the component mounts
   useEffect(() => {
@@ -30,6 +30,19 @@ const HomeScreen = ({ navigation }) => {
     );
     return () => backHandler.remove();
   }, []);
+  
+  useFocusEffect(
+    React.useCallback(() => {
+      refreshPage();
+      return () => {};
+    }, [])
+  );
+
+  const refreshPage = () => {
+    // Implement your refresh logic here
+    fetchDocumentList();
+    console.log('Page refreshed');
+  };
 
   // Function to handle opening and closing search bar
   const handleToggleSearch = () => {
@@ -70,36 +83,89 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const handleBackPress = () => {
+    fetchDocumentList();
     // console.log(documentList);
     setIsArrayEmpty(!isArrayEmpty);
     setFilteredDocumentList(documentList); // Reset to show all documents
     return true; // Prevent default back button behavior
   };
 
+  const handleDeleteDocument = async (docId) => {
+    // Display an alert to confirm deletion
+    Alert.alert(
+      'Confirm Deletion',
+      'Are you sure you want to delete this document?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Call the deleteDocument function from api.js to send the delete request
+              await deleteDocument(docId);
+              // Refresh the document list after successful deletion (you can implement this based on your data fetching logic)
+              setShowDropdown(false); // Close dropdown after deletion
+              refreshPage();
+            } catch (error) {
+              console.error('Error deleting document:', error);
+            // Handle error, e.g., show an error message
+          }
+        },
+      },
+    ],
+    { cancelable: true }
+  );
+};
+              
+const renderDropdown = () => {
+  return (
+    <Modal visible={showDropdown} transparent={true} animationType="fade">
+      <View style={styles.dropdown}>
+        <TouchableOpacity style={styles.dropdownItem} onPress={() => setShowDropdown(false)}>
+          <Text style={styles.dropdownText}>View</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.dropdownItem}
+          onPress={() => {
+            handleDeleteDocument(selectedDocument.docId);
+          }}
+        >
+          <Text style={[styles.dropdownText, { color: 'red' }]}>Delete</Text>
+        </TouchableOpacity>
+      </View>
+    </Modal>
+  );
+};
   return (
     <View style={styles.containerHome}>
       <Navbar navigation={navigation} />
       <HomeHeadline />
       {/* Conditional rendering for search bar */}
       {isSearchOpen && <SearchDocument onSearch={handleSearch} />}
-      {isArrayEmpty ? <Text>Oops! no documents found</Text> : <Text></Text>}
-      {selectedDocument ? (
-        <PdfReader uri={selectedDocument.uri} />
-      ) : (
+      {isArrayEmpty ? <Text>Oops! no documents found.</Text> : <Text></Text>}
+      {renderDropdown()}
         <FlatList
-          data={filteredDocumentList}
-          keyExtractor={(item) => item.docId.toString()}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleDocumentSelection(item)}>
-              <View style={styles.documentItem}>
-                <Text style={styles.documentName}>{item.docName}</Text>
-                <Text style={styles.documentType}>{item.docType}</Text>
-                {/* Add more details as needed */}
-              </View>
-            </TouchableOpacity>
-          )}
-        />
-      )}
+        data={filteredDocumentList}
+        keyExtractor={(item) => item.docId.toString()}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            onPress={() => {
+              setSelectedDocument(item);
+              setShowDropdown(!showDropdown);
+            }}
+          >
+            <View style={styles.documentItem}>
+              <Text style={styles.documentName}>{item.docName}</Text>
+              <Text style={styles.documentType}>{item.docType}</Text>
+              <MaterialIcons name="keyboard-arrow-down" size={24} color="#333" />
+            </View>
+          </TouchableOpacity>
+        )}
+      />
 
       <View style={styles.iconContainer}>
         <TouchableOpacity
@@ -125,23 +191,36 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF8E1", // Beige background color
     padding: 20,
   },
-
   documentItem: {
-    marginBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 10,
-    borderWidth: 1,
-    borderColor: "#D7CCC8", // Light brown border color
-    borderRadius: 5,
-    backgroundColor: "#FFF", // White background color
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
   documentName: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#333", // Dark text color
+    fontWeight: 'bold',
   },
   documentType: {
     fontSize: 14,
-    color: "#666", // Medium text color
+  },
+  dropdown: {
+    position: 'absolute',
+    top: 50, // Adjust as needed
+    right: 10, // Adjust as needed
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    elevation: 3,
+    padding: 10,
+  },
+  dropdownItem: {
+    paddingVertical: 8,
+  },
+  dropdownText: {
+    fontSize: 16,
+    paddingHorizontal: 20,
   },
   iconContainer: {
     position: "absolute",

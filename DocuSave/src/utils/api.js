@@ -72,4 +72,14 @@ const fetchUserId = async () => {
   }
 };
 
-export { getDocumentList, login, signUp, uploadDocument };
+const deleteDocument = async (docId) => {
+  try {
+    const response = await axios.delete(`${BASE_URL}/documents/${docId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export { deleteDocument, getDocumentList, login, signUp, uploadDocument };
+

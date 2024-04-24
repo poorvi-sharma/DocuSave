@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { uploadDocument } from "../utils/api";
 
-const AddDocumentScreen = () => {
+const AddDocumentScreen = ({navigation}) => {
   const [document, setDocument] = useState(null);
   const [documentName, setDocumentName] = useState("");
   const [isUploadEnabled, setIsUploadEnabled] = useState(false);
@@ -36,13 +36,6 @@ const AddDocumentScreen = () => {
         setIsUploadEnabled(true);
       }
 
-      // if (!result.cancelled && result.assets.length > 0) {
-      //   const asset = result.assets[0];
-      //   setDocument(asset.uri);
-      //   setDocumentName(asset.name);
-      //   setDocumentType(asset.mimeType); // Store the document type
-      //   setIsUploadEnabled(true);
-      // }
     } catch (error) {
       console.error("Error picking document:", error);
     }
@@ -54,15 +47,7 @@ const AddDocumentScreen = () => {
       return;
     }
     console.log("doc: ", document);
-    // const formData = new FormData();
-    // formData.append("file", {
-    //   uri: document.uri,
-    //   name: documentName,
-    //   type: document.type, // Use 'type' instead of 'mimeType'
-    // });
-
-    // console.log("formData:", formData);
-
+    
     try {
       console.log("called");
       console.log(documentType);
@@ -74,41 +59,14 @@ const AddDocumentScreen = () => {
       setDocumentType("");
       // Reset upload button state
       setIsUploadEnabled(false);
+      navigation.navigate("Home");
     } catch (error) {
       console.error("Error uploading document:", error);
       // Handle upload error, e.g., show an error message
     }
+
   };
 
-  // const handleUpload = async () => {
-  //   console.log(documentName);
-  //   if (!document) {
-  //     console.warn("No document selected");
-  //     return;
-  //   }
-
-  //   const documentData = new FormData();
-  //   documentData.append("document", {
-  //     doc: document,
-  //     docType: documentType,
-  //     docName: documentName,
-  //   });
-
-  //   try {
-  //     console.log("called");
-  //     const response = await uploadDocument(documentData);
-  //     console.log("Document uploaded successfully:", response);
-  //     // Reset document state after successful upload
-  //     setDocument(null);
-  //     setDocumentName("");
-  //     setDocumentType("");
-  //     // Reset upload button state
-  //     setIsUploadEnabled(false);
-  //   } catch (error) {
-  //     console.error("Error uploading document:", error);
-  //     // Handle upload error, e.g., show an error message
-  //   }
-  // };
   return (
     <View style={styles.container}>
       <TouchableOpacity
