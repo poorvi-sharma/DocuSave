@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-const BASE_URL = "http://192.168.29.203:8080"; // backend URL
+const BASE_URL = "http://192.168.29.43:8080"; // backend URL
 
 const login = async (email, password) => {
   try {
@@ -33,23 +33,22 @@ const signUp = async (user) => {
   }
 };
 
-const uploadDocument = async (documentData) => {
+const uploadDocument = async (docName, docType, docUri) => {
   const userId = "1";
   console.log("in uploadDocument");
-  documentData.append("userId", userId);
-  console.log(documentData);
+  const data = {
+    docName: docName,
+    docType: docType,
+    docUri: docUri,
+    userId: userId
+  }
   try {
     // const documentData = new FormData();
     // documentData.append("document", document);
     // documentData.append("docType", docType);
     // documentData.append("docName", docName);
 
-    const response = await axios.post(`${BASE_URL}/upload`, documentData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-
+    const response = await axios.post(`${BASE_URL}/upload`, data);
     console.log("Document uploaded");
     console.log("Upload response: ", response.data);
     return response.data;
