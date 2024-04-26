@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { uploadDocument } from "../utils/api";
 
-const AddDocumentScreen = ({navigation}) => {
+const AddDocumentScreen = ({ navigation }) => {
   const [document, setDocument] = useState(null);
   const [documentName, setDocumentName] = useState("");
   const [isUploadEnabled, setIsUploadEnabled] = useState(false);
@@ -20,7 +20,9 @@ const AddDocumentScreen = ({navigation}) => {
   const [documentUri, setDocumentUri] = useState("");
 
   useEffect(() => {
-    setIsUploadEnabled(!!document && !!documentName && !!documentType && !!documentUri);
+    setIsUploadEnabled(
+      !!document && !!documentName && !!documentType && !!documentUri
+    );
   }, [document, documentName, documentType, documentUri]);
 
   const handleChooseDocument = async () => {
@@ -35,7 +37,6 @@ const AddDocumentScreen = ({navigation}) => {
         setDocumentUri(asset.uri);
         setIsUploadEnabled(true);
       }
-
     } catch (error) {
       console.error("Error picking document:", error);
     }
@@ -47,11 +48,15 @@ const AddDocumentScreen = ({navigation}) => {
       return;
     }
     console.log("doc: ", document);
-    
+
     try {
       console.log("called");
-      console.log(documentType);
-      const response = await uploadDocument(documentName, documentType, documentUri); // Replace `1` with the actual userId
+      console.log(documentUri);
+      const response = await uploadDocument(
+        documentName,
+        documentType,
+        documentUri
+      ); // Replace `1` with the actual userId
       console.log("Document uploaded successfully:", response);
       // Reset document state after successful upload
       setDocument(null);
@@ -64,7 +69,6 @@ const AddDocumentScreen = ({navigation}) => {
       console.error("Error uploading document:", error);
       // Handle upload error, e.g., show an error message
     }
-
   };
 
   return (

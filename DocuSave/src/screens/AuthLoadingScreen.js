@@ -12,9 +12,10 @@ const AuthLoadingScreen = () => {
   }, []);
 
   const checkAuthentication = async () => {
-    let token = await AsyncStorage.getItem("token");
-    console.log("token", token);
-    // const token = false;
+    // let token = await AsyncStorage.getItem("token");
+    // console.log("token", token);
+    console.log("in auth");
+    const token = "true";
     if (token == "true") {
       navigation.replace("Home");
     } else {

@@ -40,8 +40,8 @@ const uploadDocument = async (docName, docType, docUri) => {
     docName: docName,
     docType: docType,
     docUri: docUri,
-    userId: userId
-  }
+    userId: userId,
+  };
   try {
     const response = await axios.post(`${BASE_URL}/upload`, data);
     console.log("Document uploaded");
@@ -53,23 +53,28 @@ const uploadDocument = async (docName, docType, docUri) => {
 };
 
 const getDocumentList = async () => {
-  const userId = await fetchUserId();
-  const response = await axios.get(`${BASE_URL}/documents/${userId}`);
-  // console.log(response.data[0]);
-  return response.data;
+  // const userId = await fetchUserId();
+  // const response = await axios.get(`${BASE_URL}/documents/${userId}`);
+  // // console.log(response.data[0]);
+  // return response.data;
+  return [
+    { docId: 1, docName: "Document 1", docType: "PDF" },
+    { docId: 2, docName: "Document 2", docType: "PDF" },
+    { docId: 3, docName: "Document 3", docType: "PDF" },
+  ];
 };
 
 const fetchUserId = async () => {
-  try {
-    const storedData = await AsyncStorage.getItem("user"); // Replace 'key' with the key you used while storing the data
-    if (storedData !== null) {
-      const dataObj = JSON.parse(storedData);
-      const userId = parseInt(dataObj.userId, 10);
-      return userId;
-    }
-  } catch (error) {
-    console.log('Error fetching data:', error);
-  }
+  // try {
+  //   const storedData = await AsyncStorage.getItem("user"); // Replace 'key' with the key you used while storing the data
+  //   if (storedData !== null) {
+  //     const dataObj = JSON.parse(storedData);
+  //     const userId = parseInt(dataObj.userId, 10);
+  //     return userId;
+  //   }
+  // } catch (error) {
+  //   console.log("Error fetching data:", error);
+  // }
 };
 
 const deleteDocument = async (docId) => {
@@ -82,4 +87,3 @@ const deleteDocument = async (docId) => {
 };
 
 export { deleteDocument, getDocumentList, login, signUp, uploadDocument };
-
